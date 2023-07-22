@@ -36,8 +36,8 @@ class MainActivity : AppCompatActivity() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
             when {
-                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                    Toast.makeText(this, "fine location access", Toast.LENGTH_SHORT).show()
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) || permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                    Toast.makeText(this, "location access granted", Toast.LENGTH_SHORT).show()
 
                     if (isLocationEnabled()) {
                         val result = fusedLocationClient.getCurrentLocation(
@@ -58,10 +58,6 @@ class MainActivity : AppCompatActivity() {
 
                 }
 
-                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                    Toast.makeText(this, "coarse location access", Toast.LENGTH_SHORT).show()
-                }
-
                 else -> {
                     Toast.makeText(this, "no location access", Toast.LENGTH_SHORT).show()
                 }
@@ -76,6 +72,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         }
+
     }
 
     private fun createLocationRequest() {
@@ -90,23 +87,16 @@ class MainActivity : AppCompatActivity() {
         val task = client.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener {
-            // All location settings are satisfied. The client can initialize
-            // location requests here.
         }
 
         task.addOnFailureListener { e ->
             if (e is ResolvableApiException) {
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog.
                 try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
                     e.startResolutionForResult(
                         this,
                         100
                     )
-                } catch (sendEx: java.lang.Exception) {
-                    // Ignore the error.
+                } catch (_: java.lang.Exception) {
                 }
             }
         }
